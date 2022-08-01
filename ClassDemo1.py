@@ -59,6 +59,7 @@ d = {}
 for x in range(4,len(nameList)+4):
     d['emp{0}'.format(x)] = nameList[x-4]
 
-print(d["emp4"])
-# for x in d:
-#     x = Company(d[x])
+for x in d:
+    x = Company(d[x][0],d[x][1],d[x][2],d[x][3])
+
+print(Company.employeesList)
