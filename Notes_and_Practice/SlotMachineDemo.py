@@ -9,7 +9,7 @@ class SlotMachine():
     secondLine = []
     thirdLine = []
     cash = 1000
-    bet = int
+    bet = int1
     """We have three lines and 1000 cash in the beginning """
     
     def __init__(self,item_1,item_2,item_3,item_4,item_5):
