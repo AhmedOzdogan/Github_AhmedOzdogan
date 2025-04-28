@@ -1,0 +1,4 @@
+localhost
+root
+Ahmed.4091
+teaching_schedule_db
