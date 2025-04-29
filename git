@@ -1,0 +1,342 @@
+[1mdiff --git a/Data_Projects/Teaching Schedule/Previous_Versions/Schedule.py b/Data_Projects/Teaching Schedule/Previous_Versions/Schedule.py[m
+[1mdeleted file mode 100644[m
+[1mindex e802f53..0000000[m
+[1m--- a/Data_Projects/Teaching Schedule/Previous_Versions/Schedule.py[m	
+[1m+++ /dev/null[m
+[36m@@ -1,661 +0,0 @@[m
+[31m-import mysql.connector[m
+[31m-import tkinter as tk[m
+[31m-from tkinter import ttk[m
+[31m-from tkcalendar import Calendar, DateEntry[m
+[31m-import datetime[m
+[31m-from tkinter import messagebox[m
+[31m-from time import strftime[m
+[31m-[m
+[31m-# Establish a connection to the MySQL database[m
+[31m-connection = mysql.connector.connect([m
+[31m-    host="localhost",[m
+[31m-    user="root",[m
+[31m-    password="Ahmed.4091",[m
+[31m-    database="teaching_schedule_db"[m
+[31m-)[m
+[31m-[m
+[31m-# Create a cursor object to interact with the database[m
+[31m-cursor = connection.cursor()[m
+[31m-[m
+[31m-# Create a Tkinter window[m
+[31m-window = tk.Tk()[m
+[31m-window.title("Teaching Schedule")[m
+[31m-[m
+[31m-# Add the rowheight[m
+[31m-s=ttk.Style()[m
+[31m-s.theme_use('clam')[m
+[31m-s.configure('Treeview',font=("Times New Roman ", 10), rowheight=55)[m
+[31m-[m
+[31m-# Create a Treeview widget[m
+[31m-tree = ttk.Treeview(window)[m
+[31m-[m
+[31m-# Define the columns[m
+[31m-tree["columns"] = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")[m
+[31m-[m
+[31m-# Format the columns[m
+[31m-tree.column("#0", width=0, stretch=tk.NO)  # Hide the first (default) column[m
+[31m-for day in range(7):[m
+[31m-    tree.column(day, anchor=tk.CENTER)[m
+[31m-[m
+[31m-# Create the column headings[m
+[31m-tree.heading("#0", text="")[m
+[31m-tree.heading("monday", text="Monday")[m
+[31m-tree.heading("tuesday", text="Tuesday")[m
+[31m-tree.heading("wednesday", text="Wednesday")[m
+[31m-tree.heading("thursday", text="Thursday")[m
+[31m-tree.heading("friday", text="Friday")[m
+[31m-tree.heading("saturday", text="Saturday")[m
+[31m-tree.heading("sunday", text="Sunday")[m
+[31m-[m
+[31m-# Pack the Treeview widget[m
+[31m-tree.pack(pady=10)[m
+[31m- [m
+[31m-# Create labels for total hours and total money[m
+[31m-total_hours_label = ttk.Label(window, text="Total Hours Worked: ")[m
+[31m-total_hours_label.configure(font=("Times New Roman", 14), foreground="green")[m
+[31m-total_hours_label.pack(pady=10)[m
+[31m-[m
+[31m-total_money_label = ttk.Label(window, text="Total Expected Money: $")[m
+[31m-total_money_label.configure(font=("Times New Roman", 14), foreground="green")[m
+[31m-total_money_label.pack(pady=10)[m
+[31m-[m
+[31m-# Create a calendar frame[m
+[31m-calendar_frame = tk.Frame(window)[m
+[31m-calendar_frame.pack()[m
+[31m-[m
+[31m-# Create a calendar widget[m
+[31m-cal = Calendar(calendar_frame, selectmode="day", date_pattern="yyyy-mm-dd", font="Arial 12")[m
+[31m-cal.pack(pady=10)[m
+[31m-[m
+[31m-# Create a function to filter classes based on the selected week[m
+[31m-def filter_classes():[m
+[31m-    selected_date = cal.get_date()[m
+[31m-    selected_datetime = datetime.datetime.strptime(selected_date, "%Y-%m-%d")[m
+[31m-    start_date = selected_datetime - datetime.timedelta(days=selected_datetime.weekday())[m
+[31m-    end_date = start_date + datetime.timedelta(days=6)[m
+[31m-    [m
+[31m-    # Execute a SELECT query to retrieve the teaching schedule data for the entire week[m
+[31m-    query = "SELECT * FROM teaching_schedule WHERE date >= %s AND date <= %s"[m
+[31m-    cursor.execute(query, (start_date.date(), end_date.date()))[m
+[31m-    [m
+[31m-    # Fetch all the rows returned by the query[m
+[31m-    teaching_schedule_data = cursor.fetchall()[m
+[31m-[m
+[31m-    # Clear existing rows in the treeview[m
+[31m-    tree.delete(*tree.get_children())[m
+[31m-[m
+[31m-    # Create a dictionary to hold the schedule data for each day[m
+[31m-    schedule_data = {day: [] for day in range(7)}[m
+[31m-[m
+[31m-    # Populate the dictionary with the schedule data[m
+[31m-    for row in teaching_schedule_data:[m
+[31m-        class_id = row[0][m
+[31m-        class_name = row[1][m
+[31m-        date = row[2][m
+[31m-        starttime = row[3][m
+[31m-        endtime = row[4][m
+[31m-        school = row[5][m
+[31m-        rate = row[6][m
+[31m-[m
+[31m-        day = (date.weekday()) % 7  # Adjust day index to start from Monday[m
+[31m-        schedule_data[day].append((class_id, class_name, date, starttime, endtime, school, rate))[m
+[31m-[m
+[31m-    # Sort the classes for each day based on the start time[m
+[31m-    for day in range(7):[m
+[31m-        schedule_data[day].sort(key=lambda x: x[3])[m
+[31m-    # Populate the treeview with data for the entire week[m
+[31m-    for row in range(max(len(schedule_data[day]) for day in range(7))):[m
+[31m-        values = [][m
+[31m-        for day in range(7):[m
+[31m-            if row < len(schedule_data[day]):[m
+[31m-                class_id, class_name, date, starttime, endtime, school, _ = schedule_data[day][row][m
+[31m-                formatted_date = date.strftime("%d-%m-%y")[m
+[31m-                values.append(f"{class_id}/{class_name}\n{school}\n{formatted_date}-{starttime}-{endtime}")[m
+[31m-            else:[m
+[31m-                values.append("")[m
+[31m-        tree.insert("", index=tk.END, text="", values=values)[m
+[31m-    calculate_totals()[m
+[31m-[m
+[31m-class_name_entry = None[m
+[31m-date_entry = None[m
+[31m-start_time_entry = None[m
+[31m-end_time_entry = None[m
+[31m-school_entry = None[m
+[31m-rate_entry = None[m
+[31m-new_class_window = None[m
+[31m-calculate_window = None[m
+[31m-[m
+[31m-def submit_new_class():[m
+[31m-    global class_name_entry, date_entry, start_time_entry, end_time_entry, school_entry, rate_entry,new_class_window[m
+[31m-    [m
+[31m-    class_name = class_name_entry.get()[m
+[31m-    date = date_entry.get_date().strftime("%Y-%m-%d")[m
+[31m-    start_time = start_time_entry.get()[m
+[31m-    end_time = end_time_entry.get()[m
+[31m-    school = school_entry.get()[m
+[31m-    rate = rate_entry.get()[m
+[31m-    [m
+[31m-    # Insert the new class data into the SQL database[m
+[31m-    insert_query = "INSERT INTO teaching_schedule (class, date, starttime, endtime, school, rate) VALUES (%s, %s, %s, %s, %s, %s)"[m
+[31m-    [m
+[31m-    cursor.execute(insert_query, (class_name, date, start_time, end_time, school, rate))[m
+[31m-    connection.commit()[m
+[31m-    [m
+[31m-    # Show a success message[m
+[31m-    messagebox.showinfo("New Class", "Class has been added successfully.")[m
+[31m-    [m
+[31m-    # Close the new class window[m
+[31m-    new_class_window.destroy()[m
+[31m-    [m
+[31m-    # Filter the classes again to update the schedule[m
+[31m-    filter_classes()[m
+[31m-[m
+[31m-def open_new_class_window():[m
+[31m-    global class_name_entry, date_entry, start_time_entry, end_time_entry, school_entry, rate_entry,new_class_window[m
+[31m-    new_class_window = tk.Toplevel(window)[m
+[31m-    new_class_window.title("New Class")[m
+[31m-    new_class_window.geometry('300x300')[m
+[31m-    [m
+[31m-    # Create and grid the class name label and entry widgets[m
+[31m-    class_name_label = tk.Label(new_class_window, text="Class Name:")[m
+[31m-    class_name_label.grid(row=0, column=0, padx=10, pady=10)[m
+[31m-    class_name_entry = tk.Entry(new_class_window)[m
+[31m-    class_name_entry.grid(row=0, column=1, padx=10, pady=10)[m
+[31m-    [m
+[31m-    # Create and grid the date label and entry widgets[m
+[31m-    date_label = tk.Label(new_class_window, text="Date:")[m
+[31m-    date_label.grid(row=1, column=0, padx=10, pady=10)[m
+[31m-    date_entry = DateEntry(new_class_window, width=12, date_pattern="yyyy-mm-dd", font="Arial 12")[m
+[31m-    date_entry.set_date(datetime.datetime.now().date())[m
+[31m-    date_entry.grid(row=1, column=1, padx=10, pady=10)[m
+[31m-    [m
+[31m-    # Create and grid the start time label and entry widgets[m
+[31m-    start_time_label = tk.Label(new_class_window, text="Start Time (HH:MM:SS):")[m
+[31m-    start_time_label.grid(row=2, column=0, padx=10, pady=10)[m
+[31m-    start_time_entry = tk.Entry(new_class_window)[m
+[31m-    start_time_entry.grid(row=2, column=1, padx=10, pady=10)[m
+[31m-    [m
+[31m-    # Create and grid the end time label and entry widgets[m
+[31m-    end_time_label = tk.Label(new_class_window, text="End Time (HH:MM:SS):")[m
+[31m-    end_time_label.grid(row=3, column=0, padx=10, pady=10)[m
+[31m-    end_time_entry = tk.Entry(new_class_window)[m
+[31m-    end_time_entry.grid(row=3, column=1, padx=10, pady=10)[m
+[31m-    [m
+[31m-    # Create and grid the school label and entry widgets[m
+[31m-    school_label = tk.Label(new_class_window, text="School:")[m
+[31m-    school_label.grid(row=4, column=0, padx=10, pady=10)[m
+[31m-    school_entry = tk.Entry(new_class_window)[m
+[31m-    school_entry.grid(row=4, column=1, padx=10, pady=10)[m
+[31m-    [m
+[31m-    # Create and grid the rate label and entry widgets[m
+[31m-    rate_label = tk.Label(new_class_window, text="Rate:")[m
+[31m-    rate_label.grid(row=5, column=0, padx=10, pady=10)[m
+[31m-    rate_entry = tk.Entry(new_class_window)[m
+[31m-    rate_entry.insert(tk.END, "450")[m
+[31m-    rate_entry.grid(row=5, column=1, padx=10, pady=10)[m
+[31m-    [m
+[31m-    # Create and grid the submit button[m
+[31m-    submit_button = tk.Button(new_class_window, text="Submit", command=submit_new_class)[m
+[31m-    submit_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)[m
+[31m-[m
+[31m-def delete_class():[m
+[31m-    # Create a new window for deleting a class[m
+[31m-    delete_window = tk.Toplevel(window)[m
+[31m-    delete_window.title("Delete Class")[m
+[31m-    delete_window.geometry('300x200')[m
+[31m-    [m
+[31m-    # Create and pack the class ID label and entry widgets[m
+[31m-    class_id_label = tk.Label(delete_window, text="Class ID (use comma for multiple entry):")[m
+[31m-    class_id_label.pack(pady = 20)[m
+[31m-    class_id_entry = tk.Entry(delete_window)[m
+[31m-    class_id_entry.pack(pady = 20)[m
+[31m-    [m
+[31m-    def delete():[m
+[31m-        # Get the class IDs from the entry box[m
+[31m-        class_ids = class_id_entry.get().split(",")[m
+[31m-        [m
+[31m-        for class_id in class_ids:[m
+[31m-            # Delete each class with the given IDs from the database[m
+[31m-[m
+[31m-            try:[m
+[31m-                # Execute the DELETE query[m
+[31m-                delete_query = "DELETE FROM teaching_schedule WHERE id = %s"[m
+[31m-                cursor.execute(delete_query, (class_id,))[m
+[31m-                connection.commit()[m
+[31m-                messagebox.showinfo("Class Deletion", "Class deleted successfully")[m
+[31m-            [m
+[31m-            except mysql.connector.Error as error:[m
+[31m-                # Display an error message[m
+[31m-                messagebox.showerror("Class Deletion", f"Error deleting class: {error}")[m
+[31m-        [m
+[31m-        # Close the delete window[m
+[31m-        delete_window.destroy()[m
+[31m-    [m
+[31m-    # Create and pack the delete button[m
+[31m-    delete_button = tk.Button(delete_window, text="Delete", command=delete)[m
+[31m-    delete_button.pack(pady = 20)[m
+[31m-[m
+[31m-[m
+[31m-def edit_class():[m
+[31m-    # Create a new window for editing[m
+[31m-    edit_window = tk.Toplevel(window)[m
+[31m-    edit_window.title("Edit Class")[m
+[31m-    edit_window.geometry('400x500')[m
+[31m-    [m
+[31m-[m
+[31m-    # Create and pack the class ID label and entry widgets[m
+[31m-    class_id_label = tk.Label(edit_window, text="Class ID:")[m
+[31m-    class_id_label.pack()[m
+[31m-    class_id_entry = tk.Entry(edit_window)[m
+[31m-    class_id_entry.pack()[m
+[31m-[m
+[31m-    def get_class_info():[m
+[31m-        # Retrieve the class ID entered by the user[m
+[31m-        class_id = class_id_entry.get()[m
+[31m-[m
+[31m-        # Fetch the class information from the database based on the class ID[m
+[31m-        query = "SELECT * FROM teaching_schedule WHERE id = %s"[m
+[31m-        cursor.execute(query, (class_id,))[m
+[31m-        class_info = cursor.fetchone()[m
+[31m-[m
+[31m-        if class_info:[m
+[31m-            # Create and pack the class name label and entry widgets[m
+[31m-            class_name_label = tk.Label(edit_window, text="Class Name:")[m
+[31m-            class_name_label.pack()[m
+[31m-            class_name_entry = tk.Entry(edit_window)[m
+[31m-            class_name_entry.insert(tk.END, class_info[1])[m
+[31m-            class_name_entry.pack()[m
+[31m-[m
+[31m-            # Create and pack the date label and entry widgets[m
+[31m-            date_label = tk.Label(edit_window, text="Date:")[m
+[31m-            date_label.pack()[m
+[31m-            date_entry = DateEntry(edit_window, width=12, date_pattern="dd-mm-yy", font="Arial 12")[m
+[31m-            date_entry.set_date(class_info[2])[m
+[31m-            date_entry.pack()[m
+[31m-[m
+[31m-            # Create and pack the start time label and entry widgets[m
+[31m-            start_time_label = tk.Label(edit_window, text="Start Time:")[m
+[31m-            start_time_label.pack()[m
+[31m-            start_time_entry = tk.Entry(edit_window)[m
+[31m-            start_time_entry.insert(tk.END, class_info[3])[m
+[31m-            start_time_entry.pack()[m
+[31m-[m
+[31m-            # Create and pack the end time label and entry widgets[m
+[31m-            end_time_label = tk.Label(edit_window, text="End Time:")[m
+[31m-            end_time_label.pack()[m
+[31m-            end_time_entry = tk.Entry(edit_window)[m
+[31m-            end_time_entry.insert(tk.END, class_info[4])[m
+[31m-            end_time_entry.pack()[m
+[31m-[m
+[31m-            # Create and pack the school label and entry widgets[m
+[31m-            school_label = tk.Label(edit_window, text="School:")[m
+[31m-            school_label.pack()[m
+[31m-            school_entry = tk.Entry(edit_window)[m
+[31m-            school_entry.insert(tk.END, class_info[5])[m
+[31m-            school_entry.pack()[m
+[31m-[m
+[31m-            # Create and pack the rate label and entry widgets[m
+[31m-            rate_label = tk.Label(edit_window, text="Rate:")[m
+[31m-            rate_label.pack()[m
+[31m-            rate_entry = tk.Entry(edit_window)[m
+[31m-            rate_entry.insert(tk.END, class_info[6])[m
+[31m-            rate_entry.pack()[m
+[31m-[m
+[31m-            def update_class():[m
+[31m-                # Retrieve the updated values from the entry widgets[m
+[31m-                class_name = class_name_entry.get()[m
+[31m-                date = date_entry.get_date()[m
+[31m-                start_time = start_time_entry.get()[m
+[31m-                end_time = end_time_entry.get()[m
+[31m-                school = school_entry.get()[m
+[31m-                rate = rate_entry.get()[m
+[31m-[m
+[31m-                # Update the class information in the database[m
+[31m-                query = "UPDATE teaching_schedule SET class = %s, date = %s, starttime = %s, endtime = %s, school = %s, rate = %s WHERE id = %s"[m
+[31m-                cursor.execute(query, (class_name, date, start_time, end_time, school, rate, class_id))[m
+[31m-                connection.commit()[m
+[31m-[m
+[31m-                # Close the edit window[m
+[31m-                edit_window.destroy()[m
+[31m-[m
+[31m-                # Refresh the class schedule display[m
+[31m-                filter_classes()[m
+[31m-[m
+[31m-            # Create and pack the update button[m
+[31m-            update_button = tk.Button(edit_window, text="Update", command=update_class)[m
+[31m-            update_button.pack()[m
+[31m-        else:[m
+[31m-            messagebox.showerror("Error", "Invalid Class ID")[m
+[31m-[m
+[31m-    # Create and pack the get info button[m
+[31m-    get_info_button = tk.Button(edit_window, text="Get Info", command=get_class_info)[m
+[31m-    get_info_button.pack()[m
+[31m-[m
+[31m-[m
+[31m-def duplicate_classes():[m
+[31m-    # Create a new window fo
