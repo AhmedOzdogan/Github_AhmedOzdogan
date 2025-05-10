@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .detail-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 320px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
+
+        .field label {
+            font-weight: bold;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 8px 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="detail-box">
+        <h2>Lesson Details</h2>
+
+        <div class="field"><label>Class:</label> {{ lesson.class }}</div>
+        <div class="field"><label>Date:</label> {{ lesson.date }}</div>
+
+        {% set start = lesson.starttime.total_seconds() | int %}
+        {% set end = lesson.endtime.total_seconds() | int %}
+        <div class="field"><label>Time:</label>
+            {{ "%02d:%02d" % (start // 3600, (start % 3600) // 60) }} –
+            {{ "%02d:%02d" % (end // 3600, (end % 3600) // 60) }}
+        </div>
+
+        <div class="field"><label>School:</label> {{ lesson.school }}</div>
+        <div class="field"><label>Rate:</label> ${{ lesson.rate }}</div>
+        <div class="field"><label>Paid:</label> {{ 'Yes' if lesson.paid == 'yes' else 'No' }}</div>
+
+        <div class="buttons">
+            <form action="/edit/{{ lesson.id }}">
+                <button type="submit">Edit</button>
+            </form>
+            <form action="/">
+                <button type="submit">Home</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

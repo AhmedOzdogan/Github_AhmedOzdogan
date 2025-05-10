@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Hours</title>
+    <style>
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #eef2f5;
+            margin: 0;
+        }
+
+        form {
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 8px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 6px;
+            margin-top: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-wrapper">
+        <h2>Calculate Hours</h2>
+
+        <form class="form-box" method="POST">
+            <!-- Year Dropdown -->
+            <label for="year">Select Year:</label>
+            <select name="year" id="year" onchange="this.form.submit()">
+                <option value="">-- Select Year --</option>
+                {% for year in years2 %}
+                <option value="{{ year }}" {% if selected_year==year | string %}selected{% endif %}>
+                    {{ year }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Month Dropdown -->
+            <label for="month">Select Month:</label>
+            <select name="month" id="month" {% if not selected_year %}disabled{% endif %} onchange="this.form.submit()">
+                <option value="">-- Select Month --</option>
+                {% for month in months2 %}
+                <option value="{{ month }}" {% if selected_month==month | string %}selected{% endif %}>
+                    {{ month }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Companies Dropdown -->
+            <label for="company">Select Company:</label>
+            <select name="company" id="company" {% if not selected_month %}disabled{% endif %}
+                onchange="this.form.submit()">
+                <option value="">-- Select Company --</option>
+                {% for company in companies %}
+                <option value="{{ company }}" {% if selected_company==company %}selected{% endif %}>
+                    {{ company }}
+                </option>
+                {% endfor %}
+            </select>
+
+
+            <!-- Schools Dropdown -->
+            <label for="school">Select School:</label>
+            <select name="school" id="school" {% if not selected_company %}disabled{% endif %}
+                onchange="this.form.submit()">
+                <option value="">-- Select School --</option>
+                {% for school in schools %}
+                <option value="{{ school }}" {% if selected_school==school %}selected{% endif %}>
+                    {{ school }}
+                </option>
+                {% endfor %}
+            </select>
+
+
+            <button type="submit" name="action" value="calculate">Submit</button>
+            <button type="button" onclick="window.location.href='/'">Cancel</button>
+        </form>
+
+        <!-- Paragraphs to show summary result -->
+        {% if summary_result %}
+        <div class="summary-box" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0;">
+            <h3>Summary Result</h3>
+            <p><strong>Total Hours:</strong> {{ summary_result.total_hours }}</p>
+            <p><strong>Hourly Rate:</strong> {{ summary_result.hourly_rate }}</p>
+            <p><strong>Total Salary:</strong> {{ summary_result.total_salary }}</p>
+        </div>
+
+        {% endif %}
+
+
+</body>
+
+</html>

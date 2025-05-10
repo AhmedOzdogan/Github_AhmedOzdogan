@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block head_extra %}
+<style>
+    button {
+        margin-top: 2px;
+        width: auto;
+        padding: 2px;
+        font-weight: bold;
+    }
+
+    input,
+    select {
+        width: auto;
+        padding: 2px;
+        margin-top: 2px;
+        margin-left: 10px;
+        box-sizing: border-box;
+    }
+
+    div.form-wrapper,
+    div.form-wrapper2 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: auto;
+        background-color: #ffffff;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Update Week{% endblock %}
+
+{% block content %}
+
+<body>
+    <h1><strong> Update (Copy / Payment / Delete) Weekly </strong></h1>
+    <h2>({{ start_date.strftime('%B %d') }} – {{ end_date.strftime('%B %d, %Y')
+        }})</h2>
+
+    <table>
+        <tr>
+            {% for day in week_dates %}
+            <th>{{ day.day_name }}<br>{{ day.day_date }}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+            <td>
+                {% for lesson in teaching_schedule_data %}
+                {% if lesson.date.strftime('%A') == day %}
+                <div class="lesson" data-lesson-id="{{ lesson.id }}">
+                    <strong>{{ lesson.class }}</strong><br>
+                    {{ lesson.school }}<br>
+
+                    {% set start = lesson.starttime.total_seconds() | int %}
+                    {% set end = lesson.endtime.total_seconds() | int %}
+
+                    {{ "%02d:%02d" % (start // 3600, (start % 3600) // 60) }}
+                    –
+                    {{ "%02d:%02d" % (end // 3600, (end % 3600) // 60) }}<br>
+
+                    Rate: {{ lesson.rate }}<br>
+                    Paid: {{ 'Yes' if lesson.paid == 'yes' else 'No' }}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </td>
+            {% endfor %}
+        </tr>
+    </table>
+</body>
+<div class="form-wrapper">
+    <form method="GET" action="/update_week">
+        <label for="selected_date">Select a date: </label>
+        <input type="date" id="selected_date" name="selected_date" value="{{ selected_date }}">
+        <button type="submit">Update</button>
+    </form>
+</div>
+<div class="form-wrapper2">
+    <form id="selectionForm" method="POST" action="/update_week">
+        <input type="hidden" name="selected_date" value="{{ selected_date }}">
+
+        <label for="option">Select an Option:</label>
+        <select name="option" id="option" onchange="showExtraFields()">
+            <option value="">-- Select Option --</option>
+            <option value="Copy" {% if option=='Copy' %}selected{% endif %}>Copy</option>
+            <option value="Delete" {% if option=='Delete' %}selected{% endif %}>Delete</option>
+            <option value="Unpaid" {% if option=='Unpaid' %}selected{% endif %}>Unpaid</option>
+            <option value="Paid" {% if option=='Paid' %}selected{% endif %}>Paid</option>
+        </select>
+
+        <!-- Only show if Copy is selected -->
+        <div id="copyDateField" style="display: {{ 'block' if option == 'Copy' else 'none' }};">
+            <label for="copy_target_date">Select Target Date for Copy:</label>
+            <input type="date" id="copy_target_date" name="copy_target_date" value="{{ copy_target_date }}">
+        </div>
+
+        <button type="button" id="processSelectedBtn">Update Selected</button>
+    </form>
+</div>
+
+{% endblock %}
