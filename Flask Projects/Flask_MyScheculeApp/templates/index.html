@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Weekly Schedule{% endblock %}
+
+{% block sidebar_extra %}
+<p>
+    <strong><u>Weekly Summary</style></u></strong><br>
+    Weekly Hours : {{ total_hours }}<br>
+    Weekly Salary : {{ total_salary }}<br>
+
+    {% for class in classes_hours %}
+    <strong><u>{{ class[0] }}</u></strong><br>
+    Hours : {{ class[1] }}<br>
+    {%endfor %}
+    <br>
+    <strong><u>Monthly Summary </u></strong><br>
+    Monthly Salary : {{ total_salary_month }}<br>
+    Monthly Hours : {{ total_hour_month }}<br>
+
+</p>
+{% endblock %}
+
+
+{% block content %}
+<h1>Weekly Schedule ({{ start_date.strftime('%B %d') }} – {{ end_date.strftime('%B %d, %Y') }})</h1>
+
+<table>
+    <tr>
+        {% for day in week_dates %}
+        <th>{{ day.day_name }}<br>{{ day.day_date }}</th>
+        {% endfor %}
+    </tr>
+    <tr>
+        {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+        <td>
+            {% for lesson in teaching_schedule_data %}
+            {% if lesson.date.strftime('%A') == day %}
+            <div class="lesson" data-lesson-id="{{ lesson.id }}">
+                <strong>{{ lesson.class }}</strong><br>
+                {{ lesson.school }}<br>
+
+                {% set start = lesson.starttime.total_seconds() | int %}
+                {% set end = lesson.endtime.total_seconds() | int %}
+
+                {{ "%02d:%02d" % (start // 3600, (start % 3600) // 60) }}
+                –
+                {{ "%02d:%02d" % (end // 3600, (end % 3600) // 60) }}<br>
+
+                Rate: {{ lesson.rate }}<br>
+                Paid: {{ 'Yes' if lesson.paid == 'yes' else 'No' }}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </td>
+        {% endfor %}
+    </tr>
+</table>
+
+<form method="GET" action="/">
+    <label for="selected_date">Select a date:</label>
+    <input type="date" id="selected_date" name="selected_date">
+    <button type="submit">Update</button>
+</form>
+
+<ul id="contextMenu" class="context-menu" style="display: none; position: absolute;">
+    <li id="detailOption">Details</li>
+    <li id="editOption">Edit</li>
+    <li id="toggleDeleteOption">Delete</li>
+    <li id="duplicateOption">Duplicate</li>
+    <li id="togglePaidOption">Un/Paid</li>
+</ul>
+{% endblock %}

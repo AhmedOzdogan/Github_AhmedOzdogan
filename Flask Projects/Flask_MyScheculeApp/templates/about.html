@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block head_extra %}
+<style>
+    h1,
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    p {
+        font-size: 1.2em;
+        line-height: 1.5;
+        margin: 20px 0;
+        margin-left: 20px;
+    }
+
+    ul.a {
+        list-style-type: disc;
+        margin-left: 0px;
+    }
+
+    li {
+        margin: 10px 0;
+    }
+
+    .highlight {
+        background-color: #f9f9f9;
+        border-left: 5px solid #bd0606;
+        padding: 30px;
+        margin: 40px 0;
+        margin-left: -20px;
+    }
+</style>
+{% endblock %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+
+<body>
+    <div class="about-container">
+        <h1>About This Project</h5>
+
+            <p>
+                This project is a <strong>Flask web application</strong> designed to help teachers manage and visualize
+                their weekly teaching schedule.
+                It connects to a live <strong>MySQL database</strong> and provides a powerful, interactive web
+                interface.
+            </p>
+            <h2>Main Features</h6>
+                <ul class="a">
+                    <li><strong>Tree View Layout:</strong> Weekly schedule displayed by days and lessons in a clean
+                        grid.</li>
+                    <li><strong>Right-Click Context Menu:</strong> Edit, duplicate, delete, or toggle payment status on
+                        any
+                        lesson with a custom JavaScript-powered right-click menu.</li>
+                    <li><strong>Interactive Sidebar:</strong> Consistent side menu across all pages for easy navigation
+                        (extends
+                        from <code>base.html</code>).</li>
+                    <li><strong>Dynamic JavaScript:</strong>
+                        <ul>
+                            <li>Click to select lessons (turns red when selected).</li>
+                            <li>Multi-select and perform batch operations like copy, delete, or mark paid/unpaid.</li>
+                            <li>Dynamic dropdowns that reveal extra fields like a date picker for copy operations.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Backend Logic:</strong>
+                        <ul>
+                            <li>Processes user-selected lessons using Flask and SQL queries.</li>
+                            <li>Redirects after POST requests to ensure updated data is always shown.</li>
+                            <li>Accurate time, rate, and salary calculations (with formatted display).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Database Integration:</strong>
+                        <ul>
+                            <li>MySQL backend for storing class schedules, rates, paid status, and more.</li>
+                            <li>Dynamic queries that handle date ranges, class types, and calculations.</li>
+                            </ul3>
+                    </li>
+                </ul>
+
+                <div class="highlight">
+                    <p><strong>Note:</strong> This project was built as a learning platform and portfolio project,
+                        combining
+                        backend Flask logic, frontend dynamic interaction with JavaScript, and MySQL integration.</p>
+                </div>
+
+                <p style="text-align: center;">
+                    🚀 Thanks for exploring this app!
+                </p>
+    </div>
+
+
+</body>
+{% endblock %}
