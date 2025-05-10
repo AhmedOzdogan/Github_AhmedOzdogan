@@ -11,10 +11,12 @@ Here you'll find:
 
 🗂️ Repository Structure:
 
-  Schedule Project/: A desktop app built with Python & MySQL to manage schedules and payments for a teacher.
+  Schedule_Project/: A desktop app built with Python & MySQL to manage schedules and payments for a teacher.
 
-  PythonNotes/: My notes from courses and self-study.
+  Notes_Practices/: My notes from courses and self-study.
 
-  DataScienceProjects/: Small data science projects and visualizations.
+  Data_Projects/: Small data science projects and visualizations.
+
+  Flask_Pprojects/: Phyton-Flask demo Projects
 
 Feel free to explore! 👨‍💻
