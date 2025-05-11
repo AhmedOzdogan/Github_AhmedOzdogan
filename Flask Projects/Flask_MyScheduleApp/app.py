@@ -47,7 +47,7 @@ def index():
         start_date2 += timedelta(days=1)
         
     # Calculate total hours and salary
-    query2 = """ SELECT SUM(TIMESTAMPDIFF(MINUTE, starttime, endtime)) AS total_minutes
+    query2 = """ SELECT SUM(TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))) AS total_minutes
                 FROM teaching_schedule 
                 WHERE date BETWEEN %s 
                 AND %s 
@@ -57,7 +57,7 @@ def index():
     total_minutes = result2['total_minutes'] if result2['total_minutes'] is not None else 0
     total_hours = round(total_minutes / 60,2)
     
-    query3 = """SELECT RATE as rate_perhour, timestampdiff(minute, starttime, endtime)/60 as total_hour 
+    query3 = """SELECT RATE as rate_perhour, TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))/60 as total_hour 
                 FROM teaching_schedule WHERE date BETWEEN %s
                 AND %s;
     """
@@ -87,7 +87,7 @@ def index():
         
     classes_hours = []
         
-    query5 = """SELECT SUM(TIMESTAMPDIFF(MINUTE, starttime, endtime)) AS total_minutes
+    query5 = """SELECT SUM(TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))) AS total_minutes
                 FROM teaching_schedule 
                 WHERE date BETWEEN %s 
                 AND %s AND SUBSTRING(class,1,3) = %s
@@ -102,7 +102,7 @@ def index():
     
     month = start_date.date().month
     year = start_date.date().year
-    query6 = """SELECT RATE as rate_perhour, timestampdiff(minute, starttime, endtime)/60 as total_hour 
+    query6 = """SELECT RATE as rate_perhour, TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))/60 as total_hour 
                 FROM teaching_schedule 
                 WHERE MONTH(date) = %s 
                 AND YEAR(date) = %s;
@@ -413,12 +413,12 @@ def calculate():
 
             if selected_company == "ALL" and selected_school == "ALL":
                 query = """
-                    SELECT SUM(TIMESTAMPDIFF(MINUTE, starttime, endtime)) AS total_minutes
+                    SELECT SUM(TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))) AS total_minutes
                     FROM teaching_schedule
                     WHERE MONTH(date) = %s 
                     AND YEAR(date) = %s;
                 """
-                query2 = """SELECT RATE as rate_perhour, timestampdiff(minute, starttime, endtime)/60 as total_hour
+                query2 = """SELECT RATE as rate_perhour, TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))/60 as total_hour
                             FROM teaching_schedule 
                             WHERE MONTH(date) = %s
                             AND YEAR(date) = %s;
@@ -439,13 +439,13 @@ def calculate():
 
             elif selected_school == "ALL":
                 query = """
-                    SELECT SUM(TIMESTAMPDIFF(MINUTE, starttime, endtime)) AS total_minutes
+                    SELECT SUM(TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))) AS total_minutes
                     FROM teaching_schedule
                     WHERE MONTH(date) = %s 
                     AND school = %s 
                     AND YEAR(date) = %s;
                 """
-                query2 = """SELECT RATE as rate_perhour, timestampdiff(minute, starttime, endtime)/60 as total_hour
+                query2 = """SELECT RATE as rate_perhour, TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))/60 as total_hour
                             FROM teaching_schedule 
                             WHERE MONTH(date) = %s
                             AND school = %s 
@@ -468,13 +468,13 @@ def calculate():
 
             elif selected_company == "ALL":
                 query = """
-                    SELECT SUM(TIMESTAMPDIFF(MINUTE, starttime, endtime)) AS total_minutes
+                    SELECT SUM(TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))) AS total_minutes
                     FROM teaching_schedule
                     WHERE MONTH(date) = %s 
                     AND SUBSTRING(class,1,3) = %s 
                     AND YEAR(date) = %s;
                 """
-                query2 = """SELECT RATE as rate_perhour, timestampdiff(minute, starttime, endtime)/60 as total_hour
+                query2 = """SELECT RATE as rate_perhour, TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))/60 as total_hour
                             FROM teaching_schedule 
                             WHERE MONTH(date) = %s
                             AND SUBSTRING(class,1,3) = %s 
@@ -495,14 +495,14 @@ def calculate():
 
             else:
                 query = """
-                    SELECT SUM(TIMESTAMPDIFF(MINUTE, starttime, endtime)) AS total_minutes
+                    SELECT SUM(TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))) AS total_minutes
                     FROM teaching_schedule
                     WHERE MONTH(date) = %s 
                     AND school = %s 
                     AND SUBSTRING(class,1,3) = %s 
                     AND YEAR(date) = %s;
                 """
-                query2 = """SELECT RATE as rate_perhour, timestampdiff(minute, starttime, endtime)/60 as total_hour 
+                query2 = """SELECT RATE as rate_perhour, TIMESTAMPDIFF(MINUTE, CONCAT('2000-01-01 ',starttime), CONCAT('2000-01-01 ',endtime))/60 as total_hour 
                             FROM teaching_schedule WHERE MONTH(date) = %s
                             AND school = %s AND SUBSTRING(class,1,3) = %s AND YEAR(date) = %s;
                 """
