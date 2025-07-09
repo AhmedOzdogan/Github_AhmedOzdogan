@@ -1,0 +1,103 @@
+<!-- Case Code Example Description
+Get element by ID document.getElementById("myId") Returns a single element with that ID
+Get elements by class document.getElementsByClassName("myClass") Returns a live collection (array-like)
+Get elements by tag document.getElementsByTagName("p") All <p> tags, for example
+Query (CSS style) selector document.querySelector(".box") First match (can be ID, class, tag, etc.)
+Query all document.querySelectorAll("div.item") Returns NodeList (static) of matches
+Change text element.textContent = "Hello" Changes visible text
+Change HTML element.innerHTML = "<b>Hello</b>" Replaces content with raw HTML
+Change style element.style.color = "red" Inline styling via JS
+Add event listener element.addEventListener("click", fn) Respond to user actions like clicks -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Document Object Model</title>
+</head>
+
+<body>
+
+    <h1 id="header">Hello, World!</h1>
+    <button onClick=getValue()>Click me</button>
+
+    <h2 class="my-class">This is a heading</h2>
+    <h2 class="my-class">This is another heading</h2>
+    <button onClick=getValueByClass()>Get Class Values</button>
+
+    <h2>This is a heading without class</h2>
+    <h2>This is another heading without class</h2>
+    <button onClick=getValueByTag()>Get Tag Values</button>
+
+    <h3 id="header2" style="display:none">Hello, World!</h3>
+
+</body>
+
+<script>
+    // This function retrieves the text content of the header element
+    function getValue() {
+        let header = document.getElementById("header");
+        console.log(header.innerText);
+    }
+
+    // This function retrieves the text by class name
+    function getValueByClass() {
+        let elements = document.getElementsByClassName("my-class");
+        for (let element of elements) {
+            console.log(element.innerText);
+        }
+    }
+
+    function getValueByTag() {
+        let elements = document.getElementsByTagName("h2");
+        for (let element of elements) {
+            console.log(element.innerText);
+        }
+    }
+
+    let title2 = document.querySelector("h2");
+    console.log(title2.textContent);
+
+    let titleall = document.querySelectorAll("h2");
+    for (let title of titleall) {
+        console.log(title.textContent);
+    }
+
+    //textContent All the text content (even hidden)
+    //innerText Only visible text
+    //innerHTML HTML content (can include tags)
+
+    let element = document.getElementById("header2");
+    console.log("***Text Content***");
+    console.log(element.textContent);
+    console.log("***Inner Text***");
+    console.log(element.innerText);
+    console.log("***Inner HTML***");
+    console.log(element.innerHTML);
+
+
+    // event listener example
+    let button = document.querySelector("button");
+    button.addEventListener("click", function () {
+        console.log("Button clicked!");
+    });
+
+    // Change text content
+    let button2 = document.getElementById("header");
+    button.addEventListener("click", function () {
+        header.textContent = "New Header Text";
+    });
+
+    //click  - mouseover - mouseout - keydown - keyup - change - input - submit
+
+    button.addEventListener("mouseover", function () {
+        button.style.color = "blue";
+        console.log("Mouse over button!");
+    });
+
+    button.addEventListener("mouseout", function () {
+        button.style.color = "black";
+        console.log("Mouse out of button!");
+    });
+
+</script>
