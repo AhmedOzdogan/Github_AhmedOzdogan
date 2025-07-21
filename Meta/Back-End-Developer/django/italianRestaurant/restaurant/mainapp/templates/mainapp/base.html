@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Italian Restaurant{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="{% static 'mainapp/css/styles.css' %}" />
+    <style>
+      body {
+        padding-top: 80px; /* Push content down below navbar */
+      }
+
+      .navbar {
+        background-color: gray;
+        border-bottom: 2px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-brand {
+        font-weight: bold;
+        color: #000000;
+      }
+
+      .navbar-brand:hover {
+        color: #b41a1a;
+      }
+
+      #logo {
+        height: 60px;
+        width: auto;
+        border-radius: 50%;
+      }
+      .navbar .nav-link {
+        color: black !important;
+      }
+      .navbar .nav-link:hover {
+        color: #555 !important; /* Slightly lighter on hover */
+      }
+      #cart-dropdown:hover .dropdown-menu {
+        display: block;
+        margin-top: 0;
+      }
+      #cartPreview {
+        min-width: 300px;
+      }
+
+      .cart_button {
+        flex: 1;
+        height: 40px;
+        font-size: 14px;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+
+      .cart_button:last-child {
+        margin-right: 0;
+      }
+    </style>
+
+    {% block extra_style %}
+    {% endblock %}
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="{% url 'mainapp:home' %}"
+        >
+          <img
+            id="logo"
+            src="{% static 'mainapp/images/logo.jpg' %}"
+            alt="Italian Restaurant Logo"
+            class="mr-2"
+          />
+          La Tavola Italiana
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'mainapp:home' %}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'mainapp:menu' %}">Menu</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Reservations</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact</a>
+            </li>
+            <li class="nav-item">
+            <li class="nav-item dropdown" id="cart-dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="cartMenuLink" role="button">
+                Cart <span id="cart-count" class="badge badge-pill badge-warning">{{ request.session.cart|length|default:0 }}</span>
+              </a>
+              <div class="dropdown-menu p-3" aria-labelledby="cartMenuLink" id="cartPreview">
+                {% if request.session.cart %}
+                  {% for item_id, item in request.session.cart.items %}
+                    <div class="d-flex justify-content-between">
+                      <span>{{ item.name }}</span>
+                      <span>x{{ item.quantity }}</span>
+                      <span>${{ item.price }}</span>
+                      <a href="#" class="remove-from-cart" data-item-id="{{ item_id }}">🗑️</a>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <p class="text-muted mb-0">Cart is empty</p>
+                {% endif %}
+                <hr class="my-2">
+                <div class="d-flex">
+                  <a href="#" class="btn btn-sm btn-danger clear_cart cart_button" id="clear-cart">Clear Cart</a>
+                  <a href="{% url 'mainapp:cart_view' %}" class="btn btn-sm btn-primary cart_button">View Cart</a>
+                </div>
+
+              </div>
+            </li>
+          </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    {% block content %}
+    <!-- Page-specific content will go here -->
+    {% endblock %}
+    <br>
+    <br>
+    <br>
+    
+    <footer class="bg-dark text-white fixed-bottom">
+      <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center py-2">
+        <p class="mb-0 small text-center footer-text">© 2023 La Tavola Italiana. All rights reserved.</p>
+        <p class="mb-0 small footer-text">
+          Follow us on
+          <a href="#" class="text-white ml-1">Facebook</a>,
+          <a href="#" class="text-white ml-1">Instagram</a>, and
+          <a href="#" class="text-white ml-1">Twitter</a>
+        </p>
+      </div>
+    </footer>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".clear_cart").forEach(function (button) {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        fetch("{% url 'mainapp:clear_cart' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            location.reload(); // ✅ Reload page to reflect empty cart
+          } else {
+            alert(data.message);
+          }
+        });
+      });
+    });
+
+
+
+      document.querySelectorAll(".remove-from-cart").forEach(function (button) {
+        button.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const itemId = this.dataset.itemId;
+          console.log("Trying to remove item:", itemId); // Debug log
+
+          fetch("{% url 'mainapp:remove_from_cart' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: `item_id=${itemId}`
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert(data.message);
+              location.reload(); // Or remove the item dynamically
+            } else {
+              alert(data.message);
+            }
+          });
+        });
+      });
+    });
+  </script>
+
+  {% block extra_script %}
+  {% endblock %}
+
+  </body>
+</html>

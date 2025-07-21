@@ -1,0 +1,136 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+
+{% block title %}Menu - La Tavola Italiana{% endblock %}
+
+{% block extra_style %}
+<style>
+.menu-img {
+  width: 100%;
+  height: 200px; /* or any consistent height */
+  object-fit: cover; /* crop to fill box without stretching */
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  display: block;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="menu" class="container mt-3 pt-5">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-12 col-md-3 mt-5 mb-4 mb-md-0">
+      <div class="bg-light p-3 rounded shadow-sm sticky-top" style="top: 100px;">
+        <h5 class="text-center">Categories</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><a href="{% url 'mainapp:menu' %}">All</a></li>
+          <li class="list-group-item"><a href="{% url 'mainapp:menu' %}?category=starter">Starters</a></li>
+          <li class="list-group-item"><a href="{% url 'mainapp:menu' %}?category=main">Main Courses</a></li>
+          <li class="list-group-item"><a href="{% url 'mainapp:menu' %}?category=dessert">Desserts</a></li>
+          <li class="list-group-item"><a href="{% url 'mainapp:menu' %}?category=drink">Drinks</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Menu Section -->
+    <div class="col-12 col-md-9">
+      {% if selected_category %}
+        <h3 class="mt-5">
+          {% if selected_category == "starter" %}Starters
+          {% elif selected_category == "main" %}Main Courses
+          {% elif selected_category == "dessert" %}Desserts
+          {% elif selected_category == "drink" %}Drinks
+          {% endif %}
+        </h3>
+        <div class="row">
+          {% for item in items %}
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="card h-100 d-flex flex-column shadow">
+                <img src="{{ item.image.url }}" class="menu-img" alt="{{ item.name }}">
+                <div class="card-body flex-grow-1">
+                  <h5 class="card-title">
+                    <a href="{% url 'mainapp:menu_item_detail' item_id=item.id %}">{{ item.name }}</a>
+                  </h5>
+                  <p class="card-text">{{ item.description|truncatechars:40 }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 mt-auto d-flex justify-content-between align-items-center">
+                    <button class="btn btn-primary btn-sm add-to-cart" data-item-id="{{ item.id }}">
+                      Add
+                    </button>
+                    <p class="text-muted mb-0"><strong>${{ item.price }}</strong></p>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <p>No items in this category.</p>
+          {% endfor %}
+        </div>
+      {% else %}
+        {% for category, items in grouped_items.items %}
+          <h3 class="mt-5 text-capitalize">
+            {% if category == "starter" %}Starters
+            {% elif category == "main" %}Main Courses
+            {% elif category == "dessert" %}Desserts
+            {% elif category == "drink" %}Drinks
+            {% else %}{{ category|title }}
+            {% endif %}
+          </h3>
+          <div class="row">
+            {% for item in items %}
+              <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow">
+                  <img src="{{ item.image.url }}" class="menu-img" alt="{{ item.name }}">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'mainapp:menu_item_detail' item_id=item.id %}">{{ item.name }}</a>
+                    </h5>
+                    <p class="card-text">{{ item.description | truncatechars:40 }}</p>
+                  </div>
+                  <div class="card-footer bg-white border-0 mt-auto d-flex justify-content-between align-items-center">
+                    <button class="btn btn-primary btn-sm add-to-cart" data-item-id="{{ item.id }}">
+                      Add
+                    </button>
+                    <p class="text-muted mb-0"><strong>${{ item.price }}</strong></p>
+                </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".add-to-cart");
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const itemId = this.dataset.itemId;
+
+        fetch("{% url 'mainapp:add_to_cart' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `item_id=${itemId}`,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              console.log(data.message);
+              // Optionally update cart counter in navbar
+              document.getElementById("cart-count").innerText = data.cart_total_quantity;
+            }
+          });
+      });
+    });
+  });
+</script>
+{% endblock %}

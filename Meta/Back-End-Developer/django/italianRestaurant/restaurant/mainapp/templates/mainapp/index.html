@@ -1,0 +1,72 @@
+{% extends 'mainapp/base.html' %} 
+
+{% load static %}
+
+{% block title %}Home - Italian Restaurant{%endblock %} 
+
+{% block content %}
+<div class="container mt-2 pt-5">
+    <div class="row align-items-center">
+        <div class="col-12 col-lg-6 text-center text-lg-left">
+        <h1 class="display-4">Benvenuti!</h1>
+        <p class="lead">Welcome to <strong>La Tavola Italiana</strong>, where tradition meets taste.</p>
+        <p>Our chefs craft each dish with authentic recipes passed down through generations, using the finest ingredients and the warmest passion.</p>
+        <p><em>“Mangia bene, ridi spesso, ama molto.”</em> – Eat well, laugh often, love much.</p>
+        <a href="#" class="btn btn-danger mt-3">View Our Menu</a>
+        <a href="#" class="btn btn-outline-secondary mt-3 ml-2">Book a Table</a>
+        </div>
+        <div class="col-12 col-lg-6">
+        <img id="interior" src="{% static 'mainapp/images/interior.jpg' %}" alt="Italian Restaurant Interior" 
+        class="img-fluid rounded shadow main-img">
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-12 col-lg-6">
+            <img
+            src="{% static 'mainapp/images/kitchen.jpg' %}"
+            alt="Chef preparing Italian dishes"
+            class="img-fluid rounded shadow main-img"
+            />
+        </div>
+        <div class="col-12 col-lg-6 text-center text-lg-left">
+            <h2 class="mb-3">🍝 Experience Authentic Italian Cuisine</h2>
+            <h3 class="mb-3 text-danger">Our Specialties</h3>
+            <p class="mb-2">From hand-rolled pasta to wood-fired pizzas, every bite tells a story of heritage and heart.</p>
+            <p class="mb-2">Our chefs use only the freshest herbs, imported olive oil, and traditional techniques passed down through generations.</p>
+            <p class="mb-4">Whether you're savoring a creamy risotto or a bold seafood linguine, we promise you'll taste the soul of Italy in every dish.</p>
+            <a href="#" class="btn btn-outline-danger">Explore the Full Menu</a>
+        </div>
+    </div>
+    <div class="row mt-5 align-items-center">
+    <div class="col-12 col-lg-6 text-center text-lg-left mb-4 mb-lg-0">
+        <h2 class="mb-3">Join Us for a Culinary Journey</h2>
+        <p class="lead mb-4">
+        Whether it's a family gathering, a romantic dinner, or a celebration with friends,
+        <strong>La Tavola Italiana</strong> is the perfect setting. Come enjoy delicious food
+        in the heart of the city!
+        </p>
+        <p class="lead mb-4">
+        Join us for an unforgettable dining experience that celebrates the rich flavors of Italy.
+        </p>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="embed-responsive embed-responsive-16by9 rounded shadow">
+        <iframe
+            class="embed-responsive-item"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14892.410456270874!2d105.81724553166383!3d21.068563428896596!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135aafa07941021%3A0xebc4839de61c6b2e!2sCugini%20-%20italian%20restaurant!5e0!3m2!1str!2s!4v1753098774952!5m2!1str!2s"
+            width="600"
+            height="450"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+        </div>
+    </div>
+    </div>
+
+
+
+</div>
+
+{% endblock %}

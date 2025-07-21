@@ -1,0 +1,58 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+
+{% block title %}Cart- La Tavola Italiana{% endblock %}
+
+{% block content %} 
+<div class="container mt-5 pt-5">
+  <h2 class="mb-4">Your Cart</h2>
+  {% if cart %}
+    <ul class="list-group">
+      {% for item_id, item in cart.items %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ item.name }} (x{{ item.quantity }}) - ${{ item.price|floatformat:2 }}
+         <a href="#" class="remove-from-cart" data-item-id="{{ item_id }}">🗑️</a>
+        </li>
+      {% endfor %}
+    </ul>
+    <h3 class="mt-4">Total: ${{ total_price|floatformat:2 }}</h3>
+  {% else %}
+    <p class="text-muted">Your cart is empty.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_script %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".remove-from-cart").forEach(function (button) {
+    button.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      const itemId = this.dataset.itemId;
+      console.log("Trying to remove item:", itemId); // Debug log
+
+      fetch("{% url 'mainapp:remove_from_cart' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: `item_id=${itemId}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
+          location.reload(); // Or remove the item dynamically
+        } else {
+          alert(data.message);
+        }
+      });
+    });
+  });
+});
+</script>
+
+{% endblock %}
