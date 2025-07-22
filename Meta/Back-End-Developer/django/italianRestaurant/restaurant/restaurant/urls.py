@@ -29,3 +29,5 @@ from django.conf.urls.static import static
 # This is only for development purposes; in production, use a proper web server to serve media
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+handler404 = 'mainapp.views.custom_404'

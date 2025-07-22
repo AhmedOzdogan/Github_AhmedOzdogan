@@ -1,0 +1,74 @@
+{% extends 'mainapp/base.html' %}
+{% load static %}
+
+{% block title %}Reservations - La Tavola Italiana{% endblock %}
+
+{% block extra_style %}
+<style>
+    .reservation-form {
+        background-color: #f8f9fa;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .reservation-img {
+        border-radius: 1rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .form-group label {
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}     
+
+
+<div class="container mt-5 main-container">
+    <div class="row align-items-center g-4">
+        <div class="col-12 col-lg-6">
+            <img src="{% static 'mainapp/images/reservation.jpg' %}" alt="Reservation Image" class="img-fluid reservation-img">
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="reservation-form">
+                <h2 class="text-center mb-4">Make a Reservation</h2>
+                <form method="post" action="{% url 'mainapp:reservations' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+
+                        <label for="email" class="mt-3">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+
+                        <label for="phone" class="mt-3">Phone</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                    </div>
+
+                    <div class="form-group row mt-1">
+                        <div class="col-md-6">
+                            <label for="date">Date</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="time">Time</label>
+                            <input type="time" class="form-control" id="time" name="time" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-1">
+                        <label for="people">People</label>
+                        <input type="number" class="form-control" id="people" name="people" min="1" max="20" required>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary mt-4 px-5">Submit</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

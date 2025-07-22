@@ -1,5 +1,6 @@
 from django import http
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views import View
 from .models import MenuItem
 from django.views.decorators.csrf import csrf_exempt
 
@@ -96,3 +97,30 @@ def clear_cart(request):
         request.session['cart'] = {}
         return http.JsonResponse({'success': True, 'message': 'Cart cleared.'})
     return http.JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+def reservations(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        date = request.POST.get('date')
+        time = request.POST.get('time')
+        people = request.POST.get('people')
+        
+        print(f"Reservation details: Name: {name}, Email: {email}, Phone: {phone}, Date: {date}, Time: {time}, People: {people}")
+
+    return render(request, 'mainapp/reservations.html')
+
+
+class ContactView(View):
+    def get(self, request):
+        return render(request, 'mainapp/contact.html')  # Show form
+
+    def post(self, request):
+        name = request.POST.get('name')
+        message = request.POST.get('message')
+        return http.HttpResponse(f"Thank you, {name}! Your message was received.")
+    
+def custom_404(request, exception):
+    print(f"404 error: {exception}")
+    return render(request, '404.html', status=404)
