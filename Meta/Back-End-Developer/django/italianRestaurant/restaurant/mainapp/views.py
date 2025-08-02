@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from .models import MenuItem
 from django.views.decorators.csrf import csrf_exempt
+from .forms import ContactForm, ReservationForm
 
 def home(request):
     return render(request, 'mainapp/index.html')
@@ -98,28 +99,47 @@ def clear_cart(request):
         return http.JsonResponse({'success': True, 'message': 'Cart cleared.'})
     return http.JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
-def reservations(request):
-    if request.method == "POST":
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        date = request.POST.get('date')
-        time = request.POST.get('time')
-        people = request.POST.get('people')
-        
-        print(f"Reservation details: Name: {name}, Email: {email}, Phone: {phone}, Date: {date}, Time: {time}, People: {people}")
+class ReservationView(View):
+    def get(self, request):
+        form = ReservationForm()  # Instantiate a blank form
+        return render(request, 'mainapp/reservations.html', {'form': form})
 
-    return render(request, 'mainapp/reservations.html')
+    def post(self, request):
+        form = ReservationForm(request.POST)
+        if form.is_valid():
+            # Process form data
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data['phone']
+            date = form.cleaned_data['date']
+            time = form.cleaned_data['time']
+            people = form.cleaned_data['people']
+            # You can handle the data here: save to database, send email, etc.
+            return http.HttpResponse(
+                f"Thank you {name}, your reservation has been made successfully!")
+        else:
+            # If the form is invalid, re-render the page with existing data and errors
+            return render(request, 'mainapp/reservations.html', {'form': form})
 
 
 class ContactView(View):
     def get(self, request):
-        return render(request, 'mainapp/contact.html')  # Show form
+        form = ContactForm()  # Instantiate a blank form
+        return render(request, 'mainapp/contact.html', {'form': form})
 
     def post(self, request):
-        name = request.POST.get('name')
-        message = request.POST.get('message')
-        return http.HttpResponse(f"Thank you, {name}! Your message was received.")
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Process form data
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            message = form.cleaned_data['message']
+            # You can handle the data here: save, send email, etc.
+            return http.HttpResponse(
+                f"Thank you {name}, your message has been sent successfully!")
+        else:
+            # If the form is invalid, re-render the page with existing data and errors
+            return render(request, 'mainapp/contact.html', {'form': form})
     
 def custom_404(request, exception):
     print(f"404 error: {exception}")

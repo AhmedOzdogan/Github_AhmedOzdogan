@@ -12,5 +12,5 @@ urlpatterns = [
     path('remove-from-cart/', views.remove_from_cart, name='remove_from_cart'),
     path('cart/', views.cart_view, name='cart_view'),
     path('clear-cart/', views.clear_cart, name='clear_cart'),
-    path('reservations/', views.reservations, name='reservations'),
+    path('reservations/', views.ReservationView.as_view(), name='reservations'),
 ]

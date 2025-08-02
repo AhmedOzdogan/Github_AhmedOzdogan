@@ -1,10 +1,15 @@
-{%extends 'mainapp/base.html' %}
+{% extends 'mainapp/base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Contact Us - La Tavola Italiana{% endblock %}
 
 {% block extra_style %}
 <style>
+  body {
+    background: url("{% static 'mainapp/images/contact.jpg' %}") no-repeat center center fixed;
+    background-size: cover;
+  }
   .contact-form {
     background-color: #f8f9fa;
     padding: 2rem;
@@ -17,19 +22,19 @@
 {% block content %}
 <div class="container mt-5 pt-5">
   <h1 class="mb-4">Contact Us</h1>
-  <form class="contact-form" method="POST" action="#">
+  <form method="POST" action="" class="contact-form">
     {% csrf_token %}
     <div class="form-group">
-      <label for="name">Name</label>
-      <input type="text" class="form-control" id="name" name="name" required>
+      {{ form.name.label_tag }}
+      {{ form.name|add_class:"form-control" }}
     </div>
     <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" class="form-control" id="email" name="email" required>
+      {{ form.email.label_tag }}
+      {{ form.email|add_class:"form-control" }}
     </div>
     <div class="form-group">
-      <label for="message">Message</label>
-      <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+      {{ form.message.label_tag }}
+      {{ form.message|add_class:"form-control" }}
     </div>
     <button type="submit" class="btn btn-primary">Send Message</button>
   </form>

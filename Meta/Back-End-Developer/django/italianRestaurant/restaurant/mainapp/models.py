@@ -17,3 +17,10 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.get_category_display()})" # type: ignore
+    
+    class Meta:
+        permissions = (
+            ("can_view_menu", "Can view menu items"),
+            ("can_edit_menu", "Can edit menu items"),
+            ("can_delete_menu", "Can delete menu items"),
+        )
