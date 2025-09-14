@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <title>{% block title %}Teaching Schedule{% endblock %}</title>
+
+    {% block head_extra %}
+    <!-- page-specific extra head content -->
+    {% endblock %}
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h3>Menu</h3>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/add_lesson">Add a new class</a></li>
+                <li><a href="/update_week">Update a Week</a></li>
+                <li><a href="/calculate_hours">Calculate Hours</a></li>
+                <li><a href="/about">About</a></li>
+
+                {% block sidebar_extra %}
+                <!-- page-specific extra sidebar content -->
+                {% endblock %}
+            </ul>
+        </div>
+
+        <!-- Main content area -->
+        <div class="main-content">
+            {% block content %}
+            <!-- This will be replaced by child templates -->
+            {% endblock %}
+        </div>
+    </div>
+</body>
+
+</html>
