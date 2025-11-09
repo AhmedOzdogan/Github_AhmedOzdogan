@@ -1,55 +1,56 @@
-import { useState, useEffect } from "react";
-
-// Custom hook for fetching data from an API
+import { useState, useEffect, useCallback, useRef } from "react";
 
 function useFetch<T = any>(url: string) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const controllerRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    // return if no url is provided
+  // Fetch logic
+  const fetchData = useCallback(async () => {
     if (!url) return;
 
-    // Setup for aborting fetch on cleanup
+    // Cancel previous request
+    if (controllerRef.current) controllerRef.current.abort();
     const controller = new AbortController();
-    const signal = controller.signal;
+    controllerRef.current = controller;
 
-    // Async function to fetch data
-    const fetchData = async () => {
-      // Reset state before new fetch
-      setError(null);
-      setLoading(true);
+    setLoading(true);
+    setError(null);
 
-      // Fetch data from the provided URL
-      try {
-        const response = await fetch(url, { signal });
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+      const result = await response.json();
+
+      // ✅ Compare with previous data before setting
+      setData((prev) => {
+        if (JSON.stringify(prev) === JSON.stringify(result)) {
+          console.log("No data change — skipping state update");
+          return prev; // no re-render
         }
-        const result = await response.json();
-        setData(result);
-        // Handle fetch errors
-      } catch (err: any) {
-        // Ignore abort errors
-        if (err.name !== "AbortError") {
-          setError(err.message);
-        }
-        // Finally block to set loading to false
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Call the fetch function
-    fetchData();
-
-    return () => {
-      controller.abort();
-    };
+        return result;
+      });
+    } catch (err: any) {
+      if (err.name !== "AbortError") setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, [url]);
 
-  return { data, loading, error };
+  // Initial fetch
+  useEffect(() => {
+    fetchData();
+    return () => controllerRef.current?.abort();
+  }, [fetchData]);
+
+  // Stable refetch
+  const refetch = useCallback(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return { data, loading, error, refetch };
 }
 
 export default useFetch;
