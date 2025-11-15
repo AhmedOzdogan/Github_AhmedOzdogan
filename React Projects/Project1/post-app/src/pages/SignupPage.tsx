@@ -1,55 +1,117 @@
-import { useState } from "react";
+import { useContext, useReducer } from "react";
+import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
 import FormContainer from "../components/FormContainer";
 import SubmitButton from "../components/SubmitButton";
+import { AuthContext } from "../context/AuthContext";
+import usePostFetch from "../hooks/usePostFetch";
+
+interface LoginResponse {
+    user: {
+        id: number;
+        username: string;
+        email: string;
+        role: string;
+        blocked: boolean;
+    };
+}
+
+function reducer(state: any, action: any) {
+    switch (action.type) {
+        case "SET_USERNAME":
+            return { ...state, username: action.payload };
+        case "SET_EMAIL":
+            return { ...state, email: action.payload };
+        case "SET_PASSWORD":
+            return { ...state, password: action.payload };
+        case "SET_CONFIRM_PASSWORD":
+            return { ...state, confirmPassword: action.payload };
+        case "SET_LOADING":
+            return { ...state, loading: action.payload };
+        case "SET_ERROR":
+            return { ...state, error: action.payload };
+        default:
+            return state;
+    }
+}
 
 function SignupPage() {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const auth = useContext(AuthContext);
+    if (!auth) throw new Error("AuthContext required");
+
+    const navigate = useNavigate();
+
+    const [state, dispatch] = useReducer(reducer, {
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        loading: false,
+        error: null,
+    });
+
+    // usePostFetch with LoginResponse type 
+    const {
+        executePostFetch,
+        loading: postLoading,
+        error: postError,
+    } = usePostFetch<LoginResponse>();
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
+        dispatch({ type: "SET_ERROR", payload: null });
 
-        if (!username || !password || !confirmPassword) {
-            setError("Please fill in all fields.");
+        if (
+            !state.username ||
+            !state.email ||
+            !state.password ||
+            !state.confirmPassword
+        ) {
+            dispatch({
+                type: "SET_ERROR",
+                payload: "Please fill in all fields.",
+            });
             return;
         }
 
-        if (password !== confirmPassword) {
-            setError("Passwords do not match.");
+        if (state.password !== state.confirmPassword) {
+            dispatch({
+                type: "SET_ERROR",
+                payload: "Passwords do not match.",
+            });
             return;
         }
 
-        setLoading(true);
+        dispatch({ type: "SET_LOADING", payload: true });
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/register/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    username,
-                    password,
-                }),
+            //  SIGNUP 
+            await executePostFetch("http://localhost:8000/api/users/register/", {
+                username: state.username,
+                email: state.email,
+                password: state.password,
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
+            // AUTO LOGIN – 
+            const loginData = (await executePostFetch(
+                "http://localhost:8000/api/login/",
+                {
+                    username: state.username,
+                    password: state.password,
+                }
+            )) as LoginResponse;
 
-            const data = await response.json();
-            console.log("API response:", data);
+            // Save user in AuthContext (cookies already set HttpOnly)
+            await auth.login(loginData.user);
 
-            alert(`Signup successful! Welcome, ${username}`);
-        } catch (err) {
-            setError("Signup failed. Please try again.");
+            navigate("/booklist");
+        } catch (err: any) {
+            dispatch({
+                type: "SET_ERROR",
+                payload: err.message || "Signup failed.",
+            });
         } finally {
-            setLoading(false);
+            dispatch({ type: "SET_LOADING", payload: false });
         }
     };
 
@@ -60,29 +122,55 @@ function SignupPage() {
                     label="Username"
                     type="text"
                     placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={state.username}
+                    onChange={(e) =>
+                        dispatch({ type: "SET_USERNAME", payload: e.target.value })
+                    }
+                />
+
+                <InputField
+                    label="Email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={state.email}
+                    onChange={(e) =>
+                        dispatch({ type: "SET_EMAIL", payload: e.target.value })
+                    }
                 />
 
                 <InputField
                     label="Password"
                     type="password"
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={state.password}
+                    onChange={(e) =>
+                        dispatch({ type: "SET_PASSWORD", payload: e.target.value })
+                    }
                 />
 
                 <InputField
                     label="Confirm Password"
                     type="password"
                     placeholder="Re-enter your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    value={state.confirmPassword}
+                    onChange={(e) =>
+                        dispatch({
+                            type: "SET_CONFIRM_PASSWORD",
+                            payload: e.target.value,
+                        })
+                    }
                 />
 
-                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+                {(state.error || postError) && (
+                    <p className="text-red-500 text-sm mb-2">
+                        {state.error || postError}
+                    </p>
+                )}
 
-                <SubmitButton label="Signup" loading={loading} />
+                <SubmitButton
+                    label={state.loading || postLoading ? "Signing up..." : "Signup"}
+                    loading={state.loading || postLoading}
+                />
             </form>
 
             <p className="text-sm text-white text-center mt-4">

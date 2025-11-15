@@ -10,7 +10,6 @@ function BookListPage() {
     const handleRefresh = useCallback(() => {
         refetch();
     }, [refetch]);
-
     // Memoize book data to avoid creating new array references unnecessarily
     const bookData = useMemo(() => {
         if (!data) return [];
@@ -42,34 +41,47 @@ function BookListPage() {
 
     // 🧾 Main UI
     return (
-        <div className="max-w-2xl mx-auto mt-8">
-            <h1 className="text-2xl font-bold mb-4 text-center text-white">
-                Book List
+        <div className="max-w-11xl mx-auto mt-8 px-4">
+            <h1 className="text-3xl font-bold mb-6 text-center text-white">
+                📚 Book Collection
             </h1>
 
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-6">
                 <button
                     onClick={handleRefresh}
-                    className="px-4 py-2 bg-lime-500 text-white rounded hover:bg-lime-600 transition"
+                    className="px-5 py-2 bg-lime-500 text-white font-medium rounded-lg hover:bg-lime-600 transition"
                 >
                     Refresh Books
                 </button>
             </div>
 
-            <ul className="space-y-3">
+            {/* 🟩 Grid layout for books */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
                 {bookData.map((book: any) => (
-                    <li
+                    <div
                         key={book.id}
-                        className="p-4 bg-white shadow rounded hover:shadow-md transition"
+                        className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
                     >
-                        <h2 className="font-semibold text-lg">{book.title}</h2>
-                        <p className="text-sm text-gray-600">{book.content}</p>
-                        <p className="text-xs text-gray-400 mt-2">
-                            Author: {book.author || "Unknown"}
-                        </p>
-                    </li>
+                        <img
+                            src="book.png"
+                            alt={book.title}
+                            className="w-full h-48 object-center object-cover"
+                        />
+                        <div className="p-4">
+                            <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                                {book.title}
+                            </h2>
+                            <p className="text-sm text-gray-600 mb-3 wrap-normal h-20 overflow-hidden">
+                                {book.content}
+                            </p>
+                            <div className="text-xs text-gray-500 flex justify-between">
+                                <span>Author: {book.book_author || "Unknown"}</span>
+                                <span>By: {book.created_by?.username || "User"}</span>
+                            </div>
+                        </div>
+                    </div>
                 ))}
-            </ul>
+            </div>
         </div>
     );
 }

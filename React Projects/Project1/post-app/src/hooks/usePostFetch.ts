@@ -3,7 +3,6 @@ import { useState, useCallback } from "react";
 interface PostFetchResult<T> {
   url: string;
   body: T | null;
-  bearerToken?: string;
 }
 
 function usePostFetch<TResponse = any, TBody = any>() {
@@ -11,44 +10,37 @@ function usePostFetch<TResponse = any, TBody = any>() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // useCallback to ensure stable reference
-  const executePostFetch = useCallback(
-    async (url: string, body: TBody, bearerToken?: string) => {
-      setLoading(true);
-      setError(null);
+  const executePostFetch = useCallback(async (url: string, body: TBody) => {
+    setLoading(true);
+    setError(null);
 
-      try {
-        const headers: HeadersInit = {
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
           "Content-Type": "application/json",
-        };
-        if (bearerToken) {
-          headers["Authorization"] = `Bearer ${bearerToken}`;
-        }
+        },
+        credentials: "include", // ALWAYS send cookies
+        body: JSON.stringify(body),
+      });
 
-        const response = await fetch(url, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(body),
-        });
-
-        if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(`Request failed: ${errText || response.statusText}`);
-        }
-
-        const data = (await response.json()) as TResponse;
-        setResult({ url, body: data, bearerToken });
-        return data; // ✅ allow direct result usage in components
-      } catch (err: any) {
-        console.error("❌ POST error:", err);
-        setError(err.message || "Something went wrong");
-        throw err; // ✅ let the caller handle it too if needed
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Request failed: ${errText || response.statusText}`);
       }
-    },
-    []
-  );
+
+      const data = (await response.json()) as TResponse;
+
+      setResult({ url, body: data });
+      return data;
+    } catch (err: any) {
+      console.error("❌ POST error:", err);
+      setError(err.message || "Something went wrong");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return { result, loading, error, executePostFetch };
 }

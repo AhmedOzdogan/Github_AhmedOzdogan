@@ -6,6 +6,16 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import usePostFetch from "../hooks/usePostFetch";
 
+interface LoginResponse {
+    user: {
+        id: number;
+        username: string;
+        email: string;
+        role: string;
+        blocked: boolean;
+    };
+}
+
 function reducer(state: any, action: any) {
     switch (action.type) {
         case "SET_USERNAME":
@@ -29,37 +39,32 @@ function LoginPage() {
         error: null,
     });
 
-    const { executePostFetch, loading, error } = usePostFetch<{ access: string; refresh: string }>();
-    const authContext = useContext(AuthContext);
+    const { executePostFetch, loading, error } = usePostFetch<LoginResponse>();
+    const auth = useContext(AuthContext);
     const navigate = useNavigate();
 
-    if (!authContext) {
-        throw new Error("AuthContext must be used within an AuthProvider");
-    }
-
-    const { login } = authContext;
+    if (!auth) throw new Error("AuthContext required");
+    const { login } = auth;
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!state.username || !state.password) {
-            dispatch({ type: "SET_ERROR", payload: "Please fill in all fields." });
-            return;
-        }
-
         dispatch({ type: "SET_LOADING", payload: true });
 
         try {
-            // call executePostFetch instead of usePostFetch
-            const data = await executePostFetch("http://127.0.0.1:8000/api/token/", {
-                username: state.username,
-                password: state.password,
-            });
+            const data = await executePostFetch(
+                "http://localhost:8000/api/login/",
+                {
+                    username: state.username,
+                    password: state.password,
+                }
+            );
 
-            login(state.username, data.access, data.refresh);
+            await login(data.user);
             navigate("/booklist");
+
         } catch (err: any) {
-            dispatch({ type: "SET_ERROR", payload: err.message || "Login failed" });
+            dispatch({ type: "SET_ERROR", payload: err.message });
         } finally {
             dispatch({ type: "SET_LOADING", payload: false });
         }
@@ -69,22 +74,21 @@ function LoginPage() {
         <FormContainer title="Login">
             <form onSubmit={handleLogin}>
                 <InputField
-                    label="Username"
+                    label="Username or Email"
                     type="text"
-                    placeholder="Enter your username"
                     value={state.username}
                     onChange={(e) => dispatch({ type: "SET_USERNAME", payload: e.target.value })}
                 />
+
                 <InputField
                     label="Password"
                     type="password"
-                    placeholder="Enter your password"
                     value={state.password}
                     onChange={(e) => dispatch({ type: "SET_PASSWORD", payload: e.target.value })}
                 />
 
                 {(state.error || error) && (
-                    <p className="text-red-500 text-sm mb-2">{state.error || error}</p>
+                    <p className="text-red-500">{state.error || error}</p>
                 )}
 
                 <SubmitButton label="Login" loading={state.loading || loading} />

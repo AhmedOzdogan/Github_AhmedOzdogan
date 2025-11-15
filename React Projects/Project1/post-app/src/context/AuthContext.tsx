@@ -1,48 +1,58 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { get, set, del } from "idb-keyval";
 
+interface UserData {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+    blocked: boolean;
+}
+
 interface AuthContextType {
-    username: string | null;
-    login: (username: string, accessToken: string, refreshToken: string) => Promise<void>;
+    user: UserData | null;
+    login: (user: UserData) => Promise<void>;
     logout: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | null>(null); 
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [username, setUsername] = useState<string | null>(null);
+    const [user, setUser] = useState<UserData | null>(null);
 
     useEffect(() => {
-        const loadUser = async () => {
-            const storedUsername = await get("username");
-            if (storedUsername) setUsername(storedUsername);
+        const loadStoredUser = async () => {
+            const savedUser = await get("user");
+            if (savedUser) setUser(savedUser);
         };
-        loadUser();
+        loadStoredUser();
     }, []);
 
-    const login = async (username: string, accessToken: string, refreshToken: string) => {
-        await set("username", username);
-        await set("accessToken", accessToken);
-        await set("refreshToken", refreshToken);
-        setUsername(username);
+    const login = async (userData: UserData) => {
+        await set("user", userData);
+        setUser(userData);
     };
 
     const logout = async () => {
-        await del("username");
-        await del("accessToken");
-        await del("refreshToken");
-        setUsername(null);
+        await del("user");
+        setUser(null);
+
+        // hit logout endpoint to clear cookies
+        await fetch("http://127.0.0.1:8000/api/logout/", {
+            method: "POST",
+            credentials: "include",
+        });
     };
 
     return (
-        <AuthContext.Provider value={{ username, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 }
 
 export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) throw new Error("useAuth must be used within an AuthProvider");
-    return context;
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+    return ctx;
 }
