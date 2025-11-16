@@ -27,14 +27,6 @@ function Navbar() {
                     </li>
                     <li>
                         <Link
-                            to="/nestedmenu"
-                            className="hover:text-highlight transition-colors duration-200"
-                        >
-                            Nested Menu
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
                             to="/booklist"
                             className="hover:text-accent transition-colors duration-200"
                         >

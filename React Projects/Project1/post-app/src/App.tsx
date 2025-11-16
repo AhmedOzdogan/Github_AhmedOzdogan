@@ -4,45 +4,8 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import BookListPage from "./pages/BookListPage";
 import RegisterBook from "./pages/RegisterBook";
+import BookDetailPage from "./pages/BookDetailPage";
 
-function NestedMenuPage() {
-  return (
-    <div className="text-center text-white">
-      <h2 className="text-2xl font-bold mb-4">Nested Menu Page</h2>
-      <p>This is a placeholder for the Nested Menu content.</p>
-
-      {/* Links to nested routes */}
-      <div className="mt-4">
-        <Link to="dashboard" className="text-lime-300 mx-2">Dashboard</Link>
-      </div>
-
-      <Outlet />
-    </div>
-  );
-}
-
-function DashboardPage() {
-  return (
-    <div className="text-center text-white">
-      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-      <p>Welcome to your dashboard!</p>
-      <div className="mt-4">
-        <Link to="settings" className="text-lime-300 mx-2">Settings</Link>
-      </div>
-
-      <Outlet />
-    </div>
-  );
-}
-
-function SettingsPage() {
-  return (
-    <div className="text-center text-white">
-      <h2 className="text-2xl font-bold mb-4">Settings</h2>
-      <p>Manage your settings here.</p>
-    </div>
-  );
-}
 
 function WelcomePage() {
   return (
@@ -65,19 +28,9 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/booklist" element={<BookListPage />} />
           <Route path="/registerbook" element={<RegisterBook />} />
-
-          {/* Parent route */}
-          <Route path="/nestedmenu" element={<NestedMenuPage />}>
-            {/* Child route */}
-            <Route path="dashboard" element={<DashboardPage />}>
-              {/* Nested inside dashboard */}
-              <Route path="settings" element={<SettingsPage />} />
-            </Route>
-          </Route>
+          <Route path="/details/:bookId" element={<BookDetailPage />} />
         </Routes>
       </div>
-
-      <div className="bg-primary text-white p-4">Primary test</div>
     </Router>
   );
 }
