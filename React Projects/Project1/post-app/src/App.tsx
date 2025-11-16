@@ -1,11 +1,12 @@
-import { BrowserRouter as Router, Routes, Route, Link, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
-import BookListPage from "./pages/BookListPage";
-import RegisterBook from "./pages/RegisterBook";
-import BookDetailPage from "./pages/BookDetailPage";
+import { lazy, Suspense } from "react";
 
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const SignupPage = lazy(() => import("./pages/SignupPage"));
+const BookListPage = lazy(() => import("./pages/BookListPage"));
+const RegisterBook = lazy(() => import("./pages/RegisterBook"));
+const BookDetailPage = lazy(() => import("./pages/BookDetailPage"));
 
 function WelcomePage() {
   return (
@@ -20,17 +21,26 @@ function App() {
   return (
     <Router>
       <Navbar />
-      <div className="min-h-screen bg-slate-800 pt-20 flex flex-col items-center justify-center gap-6">
 
-        <Routes>
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/booklist" element={<BookListPage />} />
-          <Route path="/registerbook" element={<RegisterBook />} />
-          <Route path="/details/:bookId" element={<BookDetailPage />} />
-        </Routes>
-      </div>
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center text-white text-xl mt-10">
+            Loading...
+          </div>
+        }
+      >
+        <div className="min-h-screen bg-slate-800 pt-20 flex flex-col items-center gap-6">
+          <Routes>
+            <Route path="/" element={<WelcomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/booklist" element={<BookListPage />} />
+            <Route path="/registerbook" element={<RegisterBook />} />
+            <Route path="/details/:bookId" element={<BookDetailPage />} />
+            <Route path="*" element={<div className="text-white">404 Not Found</div>} />
+          </Routes>
+        </div>
+      </Suspense>
     </Router>
   );
 }

@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     # 3rd party
     "corsheaders",
     "rest_framework",
+    "django_filters",
 
     # Local apps
     "blog_api",
@@ -134,6 +135,12 @@ CSRF_COOKIE_SAMESITE = "Lax"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ['blog_api.auth_cookie.CookieJWTAuthentication'],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter"],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 # ------------------------------

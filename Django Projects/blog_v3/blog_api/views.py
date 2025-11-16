@@ -18,6 +18,11 @@ from .permissions import (
     IsAdminForApproval
 )
 
+from .filters import PostFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+from .filters import PostFilter
+
 # ------------------------------------------------------------
 #                 USER REGISTRATION
 # ------------------------------------------------------------
@@ -51,18 +56,36 @@ def register_user(request):
 #                         POSTS
 # ------------------------------------------------------------
 
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def posts(request, post_id=None):
-    """ List posts or retrieve a single post """
+
     if post_id:
         post = get_object_or_404(Post, id=post_id)
         serializer = PostSerializer(post)
         return Response(serializer.data)
 
     queryset = Post.objects.all()
-    serializer = PostSerializer(queryset, many=True)
-    return Response(serializer.data)
+
+    # Apply PostFilter
+    queryset = PostFilter(request.GET, queryset=queryset).qs
+
+    # Optional: search
+    queryset = SearchFilter().filter_queryset(request, queryset, view=None)
+
+    # Optional: ordering
+    queryset = OrderingFilter().filter_queryset(request, queryset, view=None)
+
+    # Pagination
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    page = paginator.paginate_queryset(queryset, request)
+
+    serializer = PostSerializer(page, many=True)
+    return paginator.get_paginated_response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
