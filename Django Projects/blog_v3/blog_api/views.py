@@ -23,6 +23,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from .filters import PostFilter
 
+from django.views.decorators.csrf import csrf_exempt
+
 # ------------------------------------------------------------
 #                 USER REGISTRATION
 # ------------------------------------------------------------
@@ -160,9 +162,9 @@ def see_or_create_comments(request, post_id):
 
         return Response(serializer.errors, status=400)
 
-
+@csrf_exempt
 @api_view(['PUT', 'PATCH', 'DELETE'])
-@permission_classes([IsAuthenticated, IsNotBlocked, IsAdminForApproval])
+@permission_classes([IsAuthenticated, IsNotBlocked])
 def modify_comment(request, comment_id):
     """ Owner or admin can edit/delete. Admin can approve. """
     comment = get_object_or_404(Comment, id=comment_id)

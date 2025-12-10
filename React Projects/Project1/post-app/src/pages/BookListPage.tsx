@@ -23,7 +23,7 @@ function BookListPage() {
 
     // Build URL dynamically (only add non-empty filters)
     const apiUrl = useMemo(() => {
-        let url = `http://127.0.0.1:8000/api/posts/?page=${page}`;
+        let url = `http://localhost:8000/api/posts/?page=${page}`;
 
         if (filters.title) url += `&title=${filters.title}`;
         if (filters.author) url += `&book_author=${filters.author}`;
